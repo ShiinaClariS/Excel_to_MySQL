@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 author: ShiinaClariS
-time: 2021年8月25日17:18:11
+time: 2021年8月25日17:20:16
 """
 
 import pymysql
@@ -32,6 +32,11 @@ class mysql_conn:
             print(e)
 
         return conn, cur
+
+    def sql_truncate(self, table):
+        conn, cur = self.get_conn_cur()
+        sql = 'TRUNCATE TABLE ' + table
+        self.execute_(sql, conn, cur)
 
     def sql_insert(self, table, colunms, raws):
         """
