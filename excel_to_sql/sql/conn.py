@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """
 author: ShiinaClariS
-time: 2021年8月23日14:34:32
+time: 2021年8月25日17:18:11
 """
 
 import pymysql
 import pandas as pd
+import time
 
 
 class mysql_conn:
@@ -32,7 +33,7 @@ class mysql_conn:
 
         return conn, cur
 
-    def sql_insert(self, table, colunms, raw):
+    def sql_insert(self, table, colunms, raws):
         """
         :param table: 表名
         :param colunms: 列名
@@ -43,28 +44,35 @@ class mysql_conn:
         conn, cur = self.get_conn_cur()
         col = ""
         val = ""
+        start = time.time()
 
         # insert into table(``,``,``...) values('','',int,...)
         for colunm in colunms:
             col = col + '`' + colunm + '`,'
         col = col.strip(',')
+        # print(col)
 
-        for value in raw:
-            if pd.isnull(value) is True:
-                val = val + 'null,'
-            else:
-                if isinstance(value, int) or isinstance(value, float):
-                    val = val + str(int(value)) + ','
+        for raw in raws:
+            for value in raw:
+                if pd.isnull(value) is True:
+                    val = val + 'null,'
                 else:
-                    val = val + "'" + str(value) + "',"
+                    if isinstance(value, int) or isinstance(value, float):
+                        val = val + str(int(value)) + ','
+                    else:
+                        val = val + '"' + str(value) + '",'
+            val = val.strip(',') + '),\n('
+            # print(val)
 
-        val = val.strip(',')
+        val = val.strip('),\n(')
         sql = "insert into " + table + "(" + col + ") values(" + val + ");"
 
-        print(raw)
+        print(sql)
         self.execute_(sql, conn, cur)
+        end = time.time()
+
         self.close_(conn, cur)
-        # return sql
+        return end - start
 
     def sql_update(self, table, colunms, raw):
         """
@@ -127,4 +135,13 @@ class mysql_conn:
     def close_(self, conn, cur):
         cur.close()
         conn.close()
-        print('连接关闭')
+        # print('连接关闭')
+
+
+# mysql = mysql_conn(host='39.105.243.180', port=3306, user='appstore', pw='2E5484FF0E1EF36E74FC4D06', db='pc_store')
+mysql = mysql_conn(host='127.0.0.1', port=3306, user='root', pw='tqf1234321fqt', db='test')
+# data = pd.read_excel(r'W:\workspace\label_to_sql\sql\input\test.xlsx')
+# colunms = data.keys()
+# raw = data.values[0]
+# mysql.sql_insert(table='test_table', colunms=colunms, raw=raw)
+# print(mysql.sql_update(table='test_table', colunms=colunms, raw=raw))
